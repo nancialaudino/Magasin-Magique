@@ -8,48 +8,71 @@ class Magasin {
     }
 
     public void updateQuality() {
-        for (int i = 0; i < items.length; i++) {
-            Item item = items[i];
+        for (Item item : items) {
 
             // Pouvoirs magiques
             if ("Pouvoirs magiques".equals(item.name)) {
-                item.sellIn--;
-                int decrement = item.sellIn < 0 ? 4 : 2; // 2x antes da validade, 4x depois
-                item.quality = Math.max(0, item.quality - decrement);
-                continue; // pula o restante da lógica
+                updatePouvoirsMagiques(item);
+                continue;
             }
 
             // Kryptonite não muda
-            if (item.name.equals("Kryptonite")) continue;
+            if ("Kryptonite".equals(item.name)) continue;
 
-            // Comté aumenta de qualidade
-            if (item.name.equals("Comté")) {
-                if (item.quality < 50) item.quality++;
+            // Comté
+            if ("Comté".equals(item.name)) {
+                updateComte(item);
             }
-            // Pass VIP Concert aumenta de forma especial
-            else if (item.name.equals("Pass VIP Concert")) {
-                if (item.quality < 50) item.quality++;
-                if (item.sellIn <= 10 && item.quality < 50) item.quality++;
-                if (item.sellIn <= 5 && item.quality < 50) item.quality++;
+            // Pass VIP Concert
+            else if ("Pass VIP Concert".equals(item.name)) {
+                updatePassVIP(item);
             }
-            // Itens normais
+            // Item normal
             else {
-                if (item.quality > 0) item.quality--;
-            }
-
-            // Atualiza sellIn
-            item.sellIn--;
-
-            // Após validade
-            if (item.sellIn < 0) {
-                if (item.name.equals("Comté")) {
-                    if (item.quality < 50) item.quality++;
-                } else if (item.name.equals("Pass VIP Concert")) {
-                    item.quality = 0;
-                } else {
-                    if (item.quality > 0) item.quality--;
-                }
+                updateNormalItem(item);
             }
         }
+    }
+
+    // ---------------- Métodos auxiliares ---------------- //
+
+    private void updateNormalItem(Item item) {
+        if (item.quality > 0) item.quality--;
+
+        item.sellIn--;
+
+        if (item.sellIn < 0 && item.quality > 0) {
+            item.quality--;
+        }
+    }
+
+    private void updateComte(Item item) {
+        if (item.quality < 50) item.quality++;
+
+        item.sellIn--;
+
+        if (item.sellIn < 0 && item.quality < 50) {
+            item.quality++;
+        }
+    }
+
+    private void updatePassVIP(Item item) {
+        if (item.quality < 50) item.quality++;
+
+        if (item.sellIn <= 10 && item.quality < 50) item.quality++;
+        if (item.sellIn <= 5 && item.quality < 50) item.quality++;
+
+        item.sellIn--;
+
+        if (item.sellIn < 0) {
+            item.quality = 0;
+        }
+    }
+
+    private void updatePouvoirsMagiques(Item item) {
+        item.sellIn--;
+
+        int decrement = item.sellIn < 0 ? 4 : 2;
+        item.quality = Math.max(0, item.quality - decrement);
     }
 }
